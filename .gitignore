@@ -3,3 +3,7 @@
 # data files
 *.pgn.zst
 *.pgn
+*.csv
+
+# pycache
+*.pyc
