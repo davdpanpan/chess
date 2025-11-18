@@ -40,14 +40,54 @@ def get_king_safety_features(board):
     if white_king_square:
         white_king_attacks = len(board.attackers(chess.BLACK, white_king_square))
         features['white_king_attackers'] = white_king_attacks
+        
+        # Count pawns in front of white king
+        king_file = chess.square_file(white_king_square)
+        king_rank = chess.square_rank(white_king_square)
+        white_pawn_shield = 0
+        
+        # Check files: king's file and adjacent files
+        for file_offset in [-1, 0, 1]:
+            check_file = king_file + file_offset
+            if 0 <= check_file <= 7:  # Valid file
+                # Look for pawns in front of king (higher ranks)
+                for rank in range(king_rank + 1, 8):
+                    square = chess.square(check_file, rank)
+                    piece = board.piece_at(square)
+                    if piece and piece.piece_type == chess.PAWN and piece.color == chess.WHITE:
+                        white_pawn_shield += 1
+                        break  # Only count first pawn in each file
+        
+        features['white_pawn_shield'] = white_pawn_shield
     else:
         features['white_king_attackers'] = 0
+        features['white_pawn_shield'] = 0
         
     if black_king_square:
         black_king_attacks = len(board.attackers(chess.WHITE, black_king_square))
         features['black_king_attackers'] = black_king_attacks
+        
+        # Count pawns in front of black king
+        king_file = chess.square_file(black_king_square)
+        king_rank = chess.square_rank(black_king_square)
+        black_pawn_shield = 0
+        
+        # Check files: king's file and adjacent files
+        for file_offset in [-1, 0, 1]:
+            check_file = king_file + file_offset
+            if 0 <= check_file <= 7:  # Valid file
+                # Look for pawns in front of king (lower ranks for black)
+                for rank in range(king_rank - 1, -1, -1):
+                    square = chess.square(check_file, rank)
+                    piece = board.piece_at(square)
+                    if piece and piece.piece_type == chess.PAWN and piece.color == chess.BLACK:
+                        black_pawn_shield += 1
+                        break  # Only count first pawn in each file
+        
+        features['black_pawn_shield'] = black_pawn_shield
     else:
         features['black_king_attackers'] = 0
+        features['black_pawn_shield'] = 0
     
     return features
 
